@@ -83,12 +83,57 @@ class TaskController extends Controller
         }
     }
 
-    public function updateTaskById($id)
+    public function updateTaskById(Request $request, $id)
     {
-        return [
-            "success" => true,
-            "message" => "Update task successfully with id: " . $id,
-        ];
+        try {
+            $task = Task::query()->find($id);
+
+            if (!$task) {
+                return response()->json(
+                    [
+                        'success' => true,
+                        'message' => "task doesnt exists"
+                    ]
+                    , 404
+                );
+            }
+
+            $title = $request->input('title');
+            $description = $request->input('description');
+            $state = $request->input('state');
+
+            if (isset($title)) {
+                $task->title = $request->input('title');
+            }
+
+            if (isset($description)) {
+                $task->description = $request->input('description');
+            }
+
+            if (isset($state)) {
+                $task->state = $request->input('state');
+            }
+
+            $task->save();
+
+            return response()->json(
+                [
+                    "success" => true,
+                    "message" => "Update task successfully",
+                    "data" => $task
+                ],
+                200
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Error updating task",
+                    "error" => $th->getMessage()
+                ],
+                500
+            );
+        }
     }
 
     public function deleteTaskById($id)
