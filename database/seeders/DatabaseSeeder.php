@@ -22,6 +22,6 @@ class DatabaseSeeder extends Seeder
                 RoleSeeder::class
             ]);
 
-            \App\Models\User::factory(10000)->create();
+            \App\Models\User::factory(15)->create();
         }
 }
