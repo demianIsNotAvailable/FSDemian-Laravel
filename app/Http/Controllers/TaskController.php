@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
@@ -15,20 +16,45 @@ class TaskController extends Controller
         ];
     }
 
-    public function createTask()
+    public function createTask(Request $request)
     {
-        return [
-            "success" => true,
-            "message" => "Create task successfully",
-            "data" => []
-        ];
+        try {
+            $title = $request->input('title');
+            $description = $request->input('description');
+            $userId = $request->input('user_id');
+
+            // insert using query builder
+            $task = DB::table('tasks')->insert([
+                'title' => $title,
+                'description' => $request->input('description'),
+                'user_id' => $userId
+            ]);
+
+            return response()->json(
+                [
+                    "success" => true,
+                    "message" => "Create task successfully",
+                    "data" => $task
+                ],
+                201
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Cant create task",
+                    "error" => $th->getMessage()
+                ],
+                500
+            );
+        }
     }
 
     public function updateTaskById($id)
     {
         return [
             "success" => true,
-            "message" => "Update task successfully with id: ".$id,
+            "message" => "Update task successfully with id: " . $id,
         ];
     }
 
@@ -36,7 +62,7 @@ class TaskController extends Controller
     {
         return [
             "success" => true,
-            "message" => "Delete task successfully with id: ".$id,
+            "message" => "Delete task successfully with id: " . $id,
         ];
     }
 }
