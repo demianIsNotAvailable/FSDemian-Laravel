@@ -32,11 +32,18 @@ class TaskController extends Controller
             // ]);
 
             // insert with Eloquent
-            $task = new Task();
-            $task->title = $title;
-            $task->description = $request->input('description');
-            $task->user_id = $userId;
-            $task->save();
+            // $task = new Task();
+            // $task->title = $title;
+            // $task->description = $request->input('description');
+            // $task->user_id = $userId;
+            // $task->save();
+
+            //insert with Eloquent option B
+            $task = Task::create([
+                'title' => $title,
+                'description' => $description,
+                'user_id' => $userId
+            ]);
 
             return response()->json(
                 [
