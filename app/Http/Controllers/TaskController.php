@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -24,11 +25,18 @@ class TaskController extends Controller
             $userId = $request->input('user_id');
 
             // insert using query builder
-            $task = DB::table('tasks')->insert([
-                'title' => $title,
-                'description' => $request->input('description'),
-                'user_id' => $userId
-            ]);
+            // $task = DB::table('tasks')->insert([
+            //     'title' => $title,
+            //     'description' => $request->input('description'),
+            //     'user_id' => $userId
+            // ]);
+
+            // insert with Eloquent
+            $task = new Task();
+            $task->title = $title;
+            $task->description = $request->input('description');
+            $task->user_id = $userId;
+            $task->save();
 
             return response()->json(
                 [
