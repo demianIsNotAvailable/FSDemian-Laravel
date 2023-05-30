@@ -24,7 +24,7 @@ Route::get('/health', function () {
 });
 
 // TASKS
-Route::get('/tasks', [TaskController::class, 'getTasks']);
+Route::get('/tasks', [TaskController::class, 'getTasksByUserId']);
 Route::post('/tasks', [TaskController::class, 'createTask']);
 Route::put('/tasks/{id}', [TaskController::class, 'updateTaskById']);
 Route::delete('/tasks/{id}', [TaskController::class, 'deleteTaskById']);

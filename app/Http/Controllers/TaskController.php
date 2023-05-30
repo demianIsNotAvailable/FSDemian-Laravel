@@ -8,13 +8,31 @@ use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
-    public function getTasks()
+    public function getTasksByUserId(Request $request)
     {
-        return [
-            "success" => true,
-            "message" => "Get tasks retrieved successfully",
-            "data" => []
-        ];
+        try {
+            $userId = $request->input('user_id');
+
+            $tasks = Task::query()->where('user_id', '=', $userId)->get();
+
+            return response()->json(
+                [
+                    "success" => true,
+                    "message" => "Task retrieved successfully",
+                    "data" => $tasks
+                ],
+                200
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Cant retrieve tasks",
+                    "error" => $th->getMessage()
+                ],
+                500
+            );
+        }
     }
 
     public function createTask(Request $request)
