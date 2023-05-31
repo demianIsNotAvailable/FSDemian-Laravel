@@ -47,7 +47,7 @@ Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:san
 // USER
 Route::group(
     [
-        'middleware' => ['auth:sanctum']
+        'middleware' => ['auth:sanctum', 'isAdmin']
     ],
     function () {
         Route::get('/users', [UserController::class, 'getAllUsers']);
