@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use Error;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
     public function getTasksByUserId(Request $request)
     {
         try {
+            Log::info("GetTask By User ID");
+
             $userId = $request->input('user_id');
 
             $tasks = Task::query()->where('user_id', '=', $userId)->get();
@@ -24,6 +27,8 @@ class TaskController extends Controller
                 200
             );
         } catch (\Throwable $th) {
+            Log::error('Error getting tasks by user: '. $th->getMessage());
+
             return response()->json(
                 [
                     "success" => false,
@@ -38,6 +43,8 @@ class TaskController extends Controller
     public function createTask(Request $request)
     {
         try {
+            Log::info("Create Task");
+
             $title = $request->input('title');
             $description = $request->input('description');
             $userId = $request->input('user_id');
@@ -72,6 +79,8 @@ class TaskController extends Controller
                 201
             );
         } catch (\Throwable $th) {
+            Log::error('Error creating task: '. $th->getMessage());
+
             return response()->json(
                 [
                     "success" => false,
@@ -86,16 +95,11 @@ class TaskController extends Controller
     public function updateTaskById(Request $request, $id)
     {
         try {
+            Log::info('updateTaskById');
             $task = Task::query()->find($id);
 
             if (!$task) {
-                return response()->json(
-                    [
-                        'success' => true,
-                        'message' => "task doesnt exists"
-                    ]
-                    , 404
-                );
+                throw new Error('No hay tarea');
             }
 
             $title = $request->input('title');
@@ -125,6 +129,19 @@ class TaskController extends Controller
                 200
             );
         } catch (\Throwable $th) {
+            Log::error('Error updating task: '. $th->getMessage());
+
+            if ($th->getMessage() === 'No hay tarea') {
+                return response()->json(
+                    [
+                        'success' => true,
+                        'message' => "task doesnt exists"
+                    ]
+                    , 
+                    404
+                );
+            }
+
             return response()->json(
                 [
                     "success" => false,
