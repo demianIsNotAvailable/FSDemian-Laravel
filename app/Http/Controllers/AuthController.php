@@ -145,4 +145,31 @@ class AuthController extends Controller
             );
         }
     }
+
+    public function profile()
+    {
+        try {
+            $user = auth()->user();
+
+            return response()->json(
+                [
+                    "success" => true,
+                    "message" => "User profile retrieved",
+                    "data" => $user,
+                ],
+                200
+            );
+        } catch (\Throwable $th) {
+            Log::error("Profile login user: ". $th->getMessage());
+
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "User cant retrieved profile",
+                    "error" => $th->getMessage()
+                ],
+                500
+            );
+        }
+    }
 }
