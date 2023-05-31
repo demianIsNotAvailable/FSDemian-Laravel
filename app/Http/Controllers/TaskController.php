@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
-    public function getTasksByUserId(Request $request)
+    public function getTasksByUserId()
     {
         try {
-            Log::info("GetTask By User ID");
+            Log::info("GetTask By User ID: ". auth()->user()->id);
 
-            $userId = $request->input('user_id');
+            $userId = auth()->user()->id;
 
             $tasks = Task::query()->where('user_id', '=', $userId)->get();
 
@@ -47,7 +47,7 @@ class TaskController extends Controller
 
             $title = $request->input('title');
             $description = $request->input('description');
-            $userId = $request->input('user_id');
+            $userId = auth()->user()->id;
 
             // insert using query builder
             // $task = DB::table('tasks')->insert([
@@ -96,7 +96,9 @@ class TaskController extends Controller
     {
         try {
             Log::info('updateTaskById');
-            $task = Task::query()->find($id);
+            $userId = auth()->user()->id;
+
+            $task = Task::query()->where('user_id', "=", $userId)->find($id);
 
             if (!$task) {
                 throw new Error('No hay tarea');
@@ -155,9 +157,33 @@ class TaskController extends Controller
 
     public function deleteTaskById($id)
     {
-        return [
-            "success" => true,
-            "message" => "Delete task successfully with id: " . $id,
-        ];
+        try {
+            $userId = auth()->user()->id;
+            $task = Task::query()->where('user_id', "=", $userId)->find($id);
+
+            if (!$task) {
+                throw new Error('Task doesnt exists');
+            }
+
+            $task->delete();
+
+            return response()->json(
+                [
+                    "success" => true,
+                    "message" => "Removed task successfully",
+                    "data" => $task
+                ],
+                200
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Cant remove task",
+                    "error" => $th->getMessage()
+                ],
+                500
+            );
+        }
     }
 }
