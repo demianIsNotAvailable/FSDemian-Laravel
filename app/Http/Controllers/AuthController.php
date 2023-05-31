@@ -10,6 +10,23 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required | min:3 | max:30',
+                'email' => 'required | email | unique:users,email',
+                'password' => 'required | min:6 | max:12',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(
+                    [
+                        "success" => true,
+                        "message" => "Body validation fails",
+                        "errors" => $validator->errors()
+                    ],
+                    400
+                );
+            }
+
             return response()->json(
                 [
                     "success" => true,
