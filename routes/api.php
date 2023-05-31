@@ -27,7 +27,7 @@ Route::get('/health', function () {
 // TASKS
 Route::group(
     [
-        'middleware' => ['auth:sanctum']
+        'middleware' => ['auth:sanctum', 'ejemplo']
     ],
     function () {
         Route::get('/tasks', [TaskController::class, 'getTasksByUserId']);
