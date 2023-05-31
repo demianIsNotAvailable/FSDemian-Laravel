@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -67,6 +68,77 @@ class AuthController extends Controller
                 [
                     "success" => false,
                     "message" => "User cant be registered",
+                    "error" => $th->getMessage()
+                ],
+                500
+            );
+        }
+    }
+
+    public function login(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required | email',
+                'password' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(
+                    [
+                        "success" => true,
+                        "message" => "Body validation fails",
+                        "errors" => $validator->errors()
+                    ],
+                    400
+                );
+            }
+
+            $email = $request->input('email');
+            $password = $request->input('password');
+
+            $user = User::query()->where("email", "=",$email)->first();
+
+            // validamos si existe el usuario
+            if (!$user) {
+                return response()->json(
+                    [
+                        "success" => true,
+                        "message" => "User or password invalid"
+                    ],
+                    400
+                );
+            }
+
+            // validamos la contraseña
+            if (!Hash::check($password, $user->password)) {
+                return response()->json(
+                    [
+                        "success" => true,
+                        "message" => "User or password invalid"
+                    ],
+                    400
+                ); 
+            }
+
+            // creamos el token del usuario
+            $token = $user->createToken('apiToken')->plainTextToken;
+
+            return response()->json(
+                [
+                    "success" => true,
+                    "message" => "User logged",
+                    "data" => $user,
+                    "token" => $token
+                ],
+                200
+            );
+        } catch (\Throwable $th) {
+            Log::error("Error login user: ". $th->getMessage());
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "User cant be login",
                     "error" => $th->getMessage()
                 ],
                 500
